@@ -19,16 +19,16 @@ This system of logic is thus concerned with bare (a.k.a. atomic, etc.) propositi
 
 The formal language P which Hunter uses for propositional logic is as follows (p. 54):
 
-> _Symbols of P_
-> P has exactly six symbols, viz.:
-> p
-> ' [dash] 
-> ~ [tilde]
-> ⊃ [hook]
-> ( [left-hand bracket]
-> ) [right-hand bracket]
-> [...] We shall call the tilde and the hook the _connectives_ of P.
-> We shall say that the symbol _p_ followed by one or more dashes is a _propositional symbol_ of P. [e.g. _p'_, _p''_, _p'''_, etc.]
+> _Symbols of P_  
+> P has exactly six symbols, viz.:  
+> p  
+> ' [dash]   
+> ~ [tilde]  
+> ⊃ [hook]  
+> ( [left-hand bracket]  
+> ) [right-hand bracket]  
+> [...] We shall call the tilde and the hook the _connectives_ of P.  
+> We shall say that the symbol _p_ followed by one or more dashes is a _propositional symbol_ of P. [e.g. _p'_, _p''_, _p'''_, etc.]  
 > 
 > _Formulas (wffs) of P_
 > 1. Any propositional symbol is a wff of P.
