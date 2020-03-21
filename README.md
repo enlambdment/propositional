@@ -58,6 +58,8 @@ psym = [ Sym $ p : xs | p  <- p_char
                       , xs <- many1 tick ]
 ```
 
+The parser for propositional symbols, ```psym```, is written so as to build up a list of all "stages" in the act of parsing, including partial parses.
+
 ```
 *Main> :t runParser
 runParser :: Parser a -> String -> [(a, String)]
@@ -65,10 +67,28 @@ runParser :: Parser a -> String -> [(a, String)]
 *Main> let parse2 = runParser psym $ p2
 *Main> parse2
 [("p''",""),("p'","'")]
-*Main> let f1 = "f'"
-*Main> let f_parse = runParser psym $ f1
+*Main> let p1f = "p'f"   
+*Main> let p1f_parse = runParser psym $ p1f  
+*Main> p1f_parse  
+[("p'","f")]  
+*Main> let f1 = "f'"  
+*Main> let f_parse = runParser psym $ f1  
 *Main> f_parse
 []
+```
+
+Meanwhile, the main parser, ```wfform```, can be observed parsing off any well-formed formula into a term of type ```Wff String```, where the propositional symbols are strings consisting of _p_ followed by one or more dashes. Note how the ```Show (Wff String)``` instance ends up with the individual propositional symbols surrounded by double quotes when the wff is printed:
+
+```
+*Main> let str1 = "(p'⋀((~p''⋁p')⊃~p'))" 
+*Main> let str1_parse = runParser wfform $ str1
+*Main> str1_parse
+[(("p'"⋀((~"p''"⋁"p'")⊃~"p'")),"")]
+*Main> let str1_wff = fst . head $ str1_parse
+*Main> str1_wff
+("p'"⋀((~"p''"⋁"p'")⊃~"p'"))
+*Main> :t str1_wff
+str1_wff :: Wff String 
 ```
 
 ## Truth tables
