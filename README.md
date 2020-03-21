@@ -125,16 +125,16 @@ While wff's of propositional logic can be checked to see whether they are tautol
 Smullyan describes "an extremely elegant and efficient proof procedure for propositional logic which we will subsequently extend to first order logic", the method of _analytic tableaux_ which is a variant of tableaux methods due to prior logicians, such as Beth, Hintikka, Anderson and Belnap (p. 15.) The method is based upon the following observations concerning ordinary propositional logic:
 
 > 1) 
->    a) If ~X is true, then X is false.
+>    a) If ~X is true, then X is false.  
 >    b) If ~X is false, then X is true.
 > 2) 
->    a) If a conjunction X⋀Y is true, then X, Y are both true.
+>    a) If a conjunction X⋀Y is true, then X, Y are both true.  
 >    b) If a conjunction X⋀Y is false, then either X is false or Y is false.
 > 3) 
->    a) If a disjunction X⋁Y is true, then either X is true or Y is true. 
+>    a) If a disjunction X⋁Y is true, then either X is true or Y is true.   
 >    b) If a disjunction X⋁Y is false, then both X, Y are false.
 > 4) 
->    a) If X⊃Y is true, then either X is false or Y is true. 
+>    a) If X⊃Y is true, then either X is false or Y is true.   
 >    b) If X⊃Y is false, then X is true and Y is false.
 
 From here, Smullyan proceeds to illustrate the method of tableaux on a specific formula, and then define it as a formal process (p. 16-17.) The formal process introduces the notion of a _signed well-formed formula (wff)_, which can be readily implemented as the Cartesian product of ```Bool``` and ```Wff t```. In this project, the module ```Tableaux.hs``` uses an alternative implementation using record syntax, so that accessors for the "sign" vs. "wff" parts of a signed formula can be leveraged:
