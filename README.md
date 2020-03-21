@@ -95,8 +95,10 @@ myWff = Neg (Conj (Impl (Conj f g) f) (Disj h (Disj f g)))
 
 Nevertheless, the data type `Wff t` implements the typeclass `Show` in a manner whereby the data constructors are converted into standard logical symbols, where appropriate:
 
-> *Main> myWff
-> ~((('f'⋀'g')⊃'f')⋀('h'⋁('f'⋁'g')))
+```
+*Main> myWff
+~((('f'⋀'g')⊃'f')⋀('h'⋁('f'⋁'g')))
+```
 
 By applying `showTruthTable` to this wff, we can view its truth table worked out according to the above method:
 
@@ -104,7 +106,7 @@ By applying `showTruthTable` to this wff, we can view its truth table worked out
 *Main> showTruthTable myWff
 'h'  'f'  'g'  ~((('f'⋀'g')⊃'f')⋀('h'⋁('f'⋁'g')))
 ---  ---  ---  ---
-T  	 T    T    F
+T    T    T    F
 T    T    F    F
 T    F    T    F
 T    F    F    F
@@ -129,8 +131,8 @@ Smullyan describes "an extremely elegant and efficient proof procedure for propo
 >    a) If a conjunction X⋀Y is true, then X, Y are both true.
 >    b) If a conjunction X⋀Y is false, then either X is false or Y is false.
 > 3) 
->    a) If a disjunction XvY is true, then either X is true or Y is true. 
->    b) If a disjunction XvY is false, then both X, Y are false.
+>    a) If a disjunction X⋁Y is true, then either X is true or Y is true. 
+>    b) If a disjunction X⋁Y is false, then both X, Y are false.
 > 4) 
 >    a) If X⊃Y is true, then either X is false or Y is true. 
 >    b) If X⊃Y is false, then X is true and Y is false.
