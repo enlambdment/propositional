@@ -7,8 +7,8 @@ import Test.QuickCheck
 import Test.Hspec
 import Numeric.Natural
 import Data.Tree
-import Data.List
-import Control.Monad
+-- import Data.List
+-- import Control.Monad
 
 
 
@@ -132,81 +132,6 @@ tr7 = Node [sw7] []                    -- an implication at the rootLabel
 
 
 
--- Typeclass instances and functions for 'isTauto' property testing
-
-{- helper functions for 'isTauto' property test -}
-nTupleBool :: Int -> [ [Bool] ]
-nTupleBool n = go n [ [] ]
- where go 0 l  = l 
-       go m l  = [b:bs | b <- [True,False], bs <- go (m-1) l]
-
-{- work out the *inputs* (left hand part) for all rows of 
-  a wff's truth table, once you have the list of tokens
-  appearing in it -}
-truthTable_in :: [a] -> [ [(a, Bool)] ]
-truthTable_in ts =
- let len   = length ts 
-     ntups = nTupleBool len
- in  map (zip ts) ntups
-
-{- given a wff & a list [(t, Bool)] pairing each token of 
-  that wff with a truth value (True or False), work out whether
-  the wff is true or false -}
-evalTruthTableRow :: (Eq t) => Wff t -> [(Wff t, Bool)] -> Maybe Bool
-evalTruthTableRow    w        ps = 
- case w of 
-  Sym t           -> let idxM  = elemIndex (Sym t) $ map fst ps 
-                         pairM = liftM (ps !!) $ idxM
-                         sndM  = liftM snd 
-                     in  sndM pairM
-  Neg v           -> liftM not $ evalTruthTableRow v ps
-  Conj v1 v2      -> (liftM2 (&&)) (evalTruthTableRow v1 ps)
-                                   (evalTruthTableRow v2 ps)
-  Disj v1 v2      -> (liftM2 (||)) (evalTruthTableRow v1 ps)
-                                   (evalTruthTableRow v2 ps) 
-  Impl v1 v2      -> (liftM2 (||)) (liftM not $ evalTruthTableRow v1 ps)
-                                   (evalTruthTableRow v2 ps)
-
-getSymTokens :: Wff t -> [Wff t]
-getSymTokens w =
- case w of 
-  Sym t           -> [Sym t]
-  Neg v           -> getSymTokens v 
-  Conj v1 v2      -> (getSymTokens v1) ++ (getSymTokens v2)
-  Disj v1 v2      -> (getSymTokens v1) ++ (getSymTokens v2)
-  Impl v1 v2      -> (getSymTokens v1) ++ (getSymTokens v2)
-
-uniques :: (Eq a) => [a] -> [a]
-uniques = foldr (\x l -> if not (x `elem` l) then x:l else l) []
-
-getUniques :: (Eq t) => Wff t -> [Wff t]
-getUniques = uniques . getSymTokens
-
-
-
-{- given a wff, compute its full truth table -}
-truthTable :: (Eq t) => Wff t -> [ [(Wff t, Maybe Bool)] ]
-truthTable w = 
- let tokens = getUniques w         -- :: [Wff t]        
-     inputs = truthTable_in tokens -- :: [] [(Wff t, Bool)]
- in  [ (map (\p -> (fst p, Just $ snd p)) inp) ++ [(w, evalTruthTableRow w inp)] | inp <- inputs ]
-
-{- can I write a helper function to 'pretty print' a wff's truth table? -}
-showTruthTable :: (Eq t, Show t) => Wff t -> IO ()
-showTruthTable w = do
- let tbl    = truthTable w
- let header = map (show . fst) (head tbl)
- let h_tabs = intercalate ['\t'] header 
- putStrLn h_tabs
- let h_bars = intercalate ['\t'] $ map (const "---") header
- putStrLn h_bars 
- let show_mBool mb = case mb of 
-      Just b    -> [head $ show b]
-      Nothing   -> "_"
- let rw_ios = [ putStrLn $ intercalate ['\t'] $ map (show_mBool . snd) row | row <- tbl ] 
- sequence_ rw_ios
- 
- 
 
 {- 
  DESIRED PROPERTY OF 'isTauto':
@@ -228,33 +153,6 @@ b.
 
 {- To write this property test, 
    need a way to generate arbitrary Wff Char's -}
-
-genWff :: Gen a -> Gen (Wff a)
-genWff g = sized gen where
- gen n =
-  frequency [ (1, liftM  Sym  g)
-            , (n, liftM  Neg  (gen $ n `div` 2))
-            , (n, liftM2 Conj (gen $ n `div` 2) (gen $ n `div` 2))
-            , (n, liftM2 Disj (gen $ n `div` 2) (gen $ n `div` 2))
-            , (n, liftM2 Impl (gen $ n `div` 2) (gen $ n `div` 2)) ]
-
-instance Arbitrary a => Arbitrary (Wff a) where 
- arbitrary = genWff arbitrary
-
-myArbWff :: Gen (Wff Char)
-myArbWff = genWff $ elements ['a'..'d']
-
-{- Pretty prints the truth tables for 10 randomly generated wff's. -}
-showSampleTruthTbls :: IO ()
-showSampleTruthTbls =
- (sample' myArbWff) >>= (sequence_ . (map showTruthTable))
-
-lastColumn :: [ [(a,b)] ] -> [b]
-lastColumn rows =
- let lastEntry row = snd $ row !! (length row - 1)
- in  map lastEntry rows 
-
-
 
 {- auxiliary small data type to facilitate expedient 
    property tests for 'isTauto' -}
