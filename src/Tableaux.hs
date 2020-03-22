@@ -31,7 +31,13 @@ data SignedWff t = Swff {
   bool :: Bool ,
   wff  :: (Wff t) 
   }
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show t => Show (SignedWff t) where 
+ show (Swff b w) = [head $ show b] ++ " " ++ (show w)
+
+
+
 
 --this feels sort of ad hoc but I can't think
 --of a better way
@@ -188,29 +194,20 @@ isTauto w =
 
 
 
---auxiliary function for use with drawTree
---need to turn every node into a 'String' ?
+{- For any concrete type based upon 'Tree', the default behavior 
+   is for 'show' to print record syntax to the screen, due to 
+   'Show (Tree a)' instance.
+   For ease of illustration, we will newtype 'Tree [a]' into 
+   'Tableau a' so that tableaux can be 'pretty printed' to the
+   screen by default, unlike Tree's. -}
+newtype Tableau a = Tableau {
+  getTableau :: Tree [a]
+  }
 
---'drawTree' has type :: Tree String -> String,
---so first, need to be able to turn Tree [SignedWff t]
---into Tree String  
-mapTree :: (a -> b) -> Tree a -> Tree b 
-mapTree f (Node rl sf) = Node (f rl) (map (mapTree f) sf)
-
-stringifyTree :: (Show t) => Tree t -> Tree String
-stringifyTree = mapTree show
-
---start from a SignedWff t; show its resulting,
---fully expanded tree via tableau method, using
---'drawTree'
---It does but I wanted, but the tree printing
---doesn't work well with record syntax ...
-drawTableau :: (Show t) => SignedWff t -> String
-drawTableau swff = 
-  let 
-    t_0 = Node [swff] []
-  in
-    drawTree $ stringifyTree $ expand t_0
+instance Show a => Show (Tableau a) where
+ show tab =
+  let tr = getTableau tab
+  in  drawTree $ fmap show tr
 
 
 

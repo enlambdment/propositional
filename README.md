@@ -183,6 +183,73 @@ isTauto w =
                                    --(these will each be lists of signed symbols)
 ```
 
+We can illustrate how one step of the overall process works, as follows. Consider the following formula:
+
+```
+*Main MonParsComs PropWffParsing Tableaux> let myWff = Conj (Sym 'a') (Impl (Neg $ Sym 'b') (Neg $ Sym 'a'))   
+*Main MonParsComs PropWffParsing Tableaux> myWff
+('a'⋀(~'b'⊃~'a'))  
+```
+
+To determine whether this formula is a tautology, we consider the signed wff which declares ```myWff``` to be ```False```, then expand that into all possible resulting alternatives, and examine these to see if any contains a contradiction. We first have to "package" the formula accordingly:
+
+```
+*Main MonParsComs PropWffParsing Tableaux> let false_myWff = Swff False myWff  
+*Main MonParsComs PropWffParsing Tableaux> false_myWff  
+F ('a'⋀(~'b'⊃~'a'))  
+```
+
+(I have defined a custom Show instance, ```instance Show t => Show (SignedWff t)```, in order to suppress the record syntax that would otherwise be printed.) 
+
+```
+*Main MonParsComs PropWffParsing Tableaux> let tree_false_myWff = Data.Tree.Node [false_myWff] []  
+*Main MonParsComs PropWffParsing Tableaux> tree_false_myWff   
+Node {rootLabel = [F ('a'⋀(~'b'⊃~'a'))], subForest = []}  
+*Main MonParsComs PropWffParsing Tableaux> let myTab = Tableau tree_false_myWff  
+*Main MonParsComs PropWffParsing Tableaux> myTab  
+[F ('a'⋀(~'b'⊃~'a'))]
+  
+```
+
+We are stating of a conjunction that it is false. According to rule 2b. above, "If a conjunction X⋀Y is false, then either X is false or Y is false." So there are two alternatives to be "broken out", as we work out the next stage of this tableau:
+
+```
+*Main MonParsComs PropWffParsing Tableaux> :t next_level
+next_level
+  :: Data.Tree.Tree [SignedWff t] -> Data.Tree.Tree [SignedWff t]  
+*Main MonParsComs PropWffParsing Tableaux> let tree_false_myWff' = next_level tree_false_myWff  
+*Main MonParsComs PropWffParsing Tableaux> let myTab' = Tableau tree_false_myWff'
+*Main MonParsComs PropWffParsing Tableaux> myTab'
+[F ('a'⋀(~'b'⊃~'a'))]
+|
++- [F 'a']
+|
+`- [F (~'b'⊃~'a')]  
+
+```
+
+(Since ```Tree``` belongs to ```base```, a ```newtype``` is needed if I want to define an alternative ```show``` behavior besides the default for ```Tree```-based types, i.e. an alternative ```Show``` instance. This is the purpose of ```Tableau a```: to provide a type isomorphic to ```Tree [a]```, but whose terms are printed to the screen without displaying record syntax.)
+
+Each alternative now gets its own "branch" of the tableau, and the same ```next_level``` step is carried out, as needed, on any leaf-level ```Swff```'s now present, until the tableau is complete. Here is the completed tableau for the wff ```('a'⋀(~'b'⊃~'a'))```:
+
+```
+*Main MonParsComs PropWffParsing Tableaux> let tree_false_myWff_f = expand tree_false_myWff  
+*Main MonParsComs PropWffParsing Tableaux> let myTab_f = Tableau tree_false_myWff_f  
+*Main MonParsComs PropWffParsing Tableaux> myTab_f  
+[F ('a'⋀(~'b'⊃~'a'))]
+|
++- [F 'a']
+|
+`- [F (~'b'⊃~'a')]
+   |
+   `- [T ~'b',F ~'a']
+      |
+      `- [F 'b',T 'a']  
+
+```
+
+Because the leaf-level nodes are each lists of signed "atomic" propositions, it is easy to examine each and see whether any contains a contradiction. Neither ```[F 'a']``` nor ```[F 'b',T 'a']``` contains an atomic proposition stated to be both true and false. So denying the original formula does _not_ unavoidably result in contradiction: in other words, the formula is _not_ a tautology of first-order propositional logic.
+
 ## Testing
 
 ([This tutorial on property testing with QuickCheck](https://www.cis.upenn.edu/~cis552/current/lectures/stub/QuickCheck.html) was frequently consulted in the course of preparing the tests discussed below.)

@@ -103,7 +103,7 @@ maybeWff str =
   0              -> Nothing
   1              -> Just (fst $ head finished)
   _              -> Nothing
- where wff      = runParser wfform $ str
-       finished = filter (\p -> null $ snd p) wff 
+ where wf       = runParser wfform $ str
+       finished = filter (\p -> null $ snd p) wf 
  
 
