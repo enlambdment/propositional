@@ -252,7 +252,7 @@ Because the leaf-level nodes are each lists of signed "atomic" propositions, it 
 
 ## Testing
 
-([This tutorial on property testing with QuickCheck](https://www.cis.upenn.edu/~cis552/current/lectures/stub/QuickCheck.html) was frequently consulted in the course of preparing the tests discussed below.)
+([This tutorial on property testing with QuickCheck](https://www.seas.upenn.edu/~cis552/19fa/lectures/stub/QuickCheck.html) was frequently consulted in the course of preparing the tests discussed below.)
 
 In order to verify that ```isTauto``` implements Smullyan's tableaux method correctly, it was necessary to confirm that ```isTauto v == True``` whenever the direct truth-table method applied to ```v``` finds that it is always true, but not otherwise. QuickCheck is leveraged in order to carry out this property test, which calls for the instance ```Arbitrary (Wff a)``` to be implemented (so that arbitrary wff's may be generated for the property test.) 
 
